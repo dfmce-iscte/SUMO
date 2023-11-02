@@ -7,6 +7,7 @@
 
     <input>
         <net-file value="project_network.net.xml"/>
+        <additional-files value="define_vehicles.add.xml"/>
         <route-files value="route_project.rou.xml"/>
     </input>
 

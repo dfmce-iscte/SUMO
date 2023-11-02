@@ -1,0 +1,7 @@
+<vehicleTypes>
+    <vType id="bus" vClass="bus" color="yellow" />
+    <vType id="emergency" vClass="emergency" color="red" />
+    <vType id="truck" vClass="truck" color="blue" />
+    <vType id="motorcycle" vClass="motorcycle" color="green" />
+    <vType id="car" vClass="passenger" color="white" />
+</vehicleTypes>
