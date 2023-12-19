@@ -1,4 +1,5 @@
 import numpy as np
+import main
 
 gamma = 0.9
 epsilon = 0.9
@@ -66,7 +67,7 @@ def get_reward(current_state, next_state):
     elif diff_scaled == 3:
         reward = -25
     elif diff_scaled == 2:
-        reward = -10
+        reward = -10 # VEr melhor aqui
     elif diff_scaled == 1:
         reward = 25
     else:
@@ -80,9 +81,7 @@ def step(current_state, action):
         Aqui temos de executar o cycle_time_length do semafore (1min) e depois obter o state atual.
         Temos de criar uma função no python file onde a simulação é executada para executar o step e obter o state obtido.
     """
-    # new_state = main.execute_new_traffic_light_cycle(state, action) # Aqui irá fazer um "sleep" de 1min
-    # next_state = get_next_state(current_state, action) # Era o que tava na solucao do stor
-    next_state = current_state  # Alterar isto!!!!!!!!!!!!
+    next_state = main.execute_new_traffic_light_cycle(action)
     reward = get_reward(current_state, next_state)
     return next_state, reward
 

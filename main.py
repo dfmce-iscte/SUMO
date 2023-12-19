@@ -1,4 +1,5 @@
 import random
+from time import sleep
 import traci
 
 actions_cycles = {
@@ -8,17 +9,27 @@ actions_cycles = {
     3: [27, 5, 28]
 }
 
+before_junction = "E1"
+ramp = "E4"
+after_junction = "E2"
+area_of_before_junction = 0.0
+area_of_after_junction = 0.0
+area_of_ramp = 0.0
+
 
 def run_sumo():
     sumoBinary = "C:\Program Files (x86)\Eclipse\Sumo\\bin\sumo-gui.exe"
     sumoBinary = sumoBinary.replace("\\", "/")
     sumoCmd = [sumoBinary, "-c", "final.sumocfg"]
 
+    global before_junction, ramp, after_junction
+    global area_of_ramp, area_of_after_junction, area_of_before_junction
+
     traci.start(sumoCmd)
     step = 0
-    before_junction = "E1"
-    ramp = "E4"
-    after_junction = "E2"
+    # before_junction = "E1"
+    # ramp = "E4"
+    # after_junction = "E2"
     # Get the number of lanes for the specified edge
     num_lanes_before_junction = traci.edge.getLaneNumber(before_junction)
     num_lanes_ramp = traci.edge.getLaneNumber(ramp)
@@ -76,6 +87,7 @@ def calculate_density(lane, area):
     density = sum_of_area_of_cars / area
     return density
 
+
 def generate_random_vehicles(step):
     types = ["car", "bus", "truck", "motorcycle", "emergency"]
     probabilities = [0.49, 0.15, 0.13, 0.20, 0.03]
@@ -109,11 +121,31 @@ def calculate_area(road, num_lanes):
     return total_width * traci.lane.getLength(road + "_0")
 
 
-def execute_new_traffic_light_cycle(state, action):
+def get_density_category(density_value):
+    if density_value < 0.25:
+        return 'L'
+    elif density_value < 0.5:
+        return 'ML'
+    elif density_value < 0.75:
+        return 'MH'
+    else:
+        return 'H'
+
+
+def execute_new_traffic_light_cycle(action):
     cycle = actions_cycles[action]
     traci.trafficlight.setPhaseDuration("J2", 0, cycle[0])
     traci.trafficlight.setPhaseDuration("J2", 1, cycle[1])
     traci.trafficlight.setPhaseDuration("J2", 2, cycle[2])
+
+    # Executar os 60seg
+    sleep(60)
+
+    r = get_density_category(calculate_density(ramp, area_of_ramp))
+    before = get_density_category(calculate_density(before_junction, area_of_before_junction))
+    after = get_density_category(calculate_density(after_junction, area_of_after_junction))
+
+    return r, before, after
 
 
 def main():
