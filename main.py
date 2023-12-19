@@ -1,6 +1,13 @@
 import random
 import traci
 
+actions_cycles = {
+    0: [60, 0, 0],
+    1: [40, 5, 15],
+    2: [15, 5, 40],
+    3: [27, 5, 28]
+}
+
 
 def run_sumo():
     sumoBinary = "C:\Program Files (x86)\Eclipse\Sumo\\bin\sumo-gui.exe"
@@ -20,10 +27,10 @@ def run_sumo():
     area_of_before_junction = calculate_area(before_junction, num_lanes_before_junction)
     print(f"Area of edge {before_junction}: {area_of_before_junction} meters")
 
-    area_of_after_junction = calculate_area(ramp,num_lanes_ramp)
+    area_of_after_junction = calculate_area(ramp, num_lanes_ramp)
     print(f"Area of edge {after_junction}: {area_of_after_junction} meters")
 
-    area_of_ramp = calculate_area(after_junction,num_lanes_after_junction)
+    area_of_ramp = calculate_area(after_junction, num_lanes_after_junction)
     print(f"Area of edge {ramp}: {area_of_ramp} meters")
     while step < 1000:
         before_junction = traci.edge.getLastStepVehicleIDs("E1")
@@ -61,6 +68,14 @@ def maybeCreateVehicle(percent):
     return 1
 
 
+def calculate_density(lane, area):
+    sum_of_area_of_cars = 0.0
+    vehicles_on_edge = traci.edge.getLastStepVehicleIDs(lane)
+    for vehicle_id in vehicles_on_edge:
+        sum_of_area_of_cars += traci.vehicle.getWidth(vehicle_id) * traci.vehicle.getLength(vehicle_id)
+    density = sum_of_area_of_cars / area
+    return density
+
 def generate_random_vehicles(step):
     types = ["car", "bus", "truck", "motorcycle", "emergency"]
     probabilities = [0.49, 0.15, 0.13, 0.20, 0.03]
@@ -92,6 +107,13 @@ def calculate_area(road, num_lanes):
         total_width += lane_width
 
     return total_width * traci.lane.getLength(road + "_0")
+
+
+def execute_new_traffic_light_cycle(state, action):
+    cycle = actions_cycles[action]
+    traci.trafficlight.setPhaseDuration("J2", 0, cycle[0])
+    traci.trafficlight.setPhaseDuration("J2", 1, cycle[1])
+    traci.trafficlight.setPhaseDuration("J2", 2, cycle[2])
 
 
 def main():

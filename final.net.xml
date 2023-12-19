@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2023-12-19 17:44:30 by Eclipse SUMO netedit Version 1.18.0
+<!-- generated on 2023-12-19 17:55:56 by Eclipse SUMO netedit Version 1.18.0
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/neteditConfiguration.xsd">
 
     <input>
@@ -75,14 +75,14 @@
         <lane id="E3_1" index="1" speed="28.00" length="1000.00" shape="288.48,53.20 403.95,53.20"/>
         <lane id="E3_2" index="2" speed="28.00" length="1000.00" shape="288.48,56.40 403.95,56.40"/>
     </edge>
-    <edge id="E4" from="J5" to="J2" priority="0" length="500.00">
+    <edge id="E4" from="J5" to="J2" priority="-1" length="500.00">
         <lane id="E4_0" index="0" speed="28.00" length="500.00" shape="77.32,10.35 164.03,45.42"/>
     </edge>
 
     <tlLogic id="J2" type="static" programID="0" offset="0">
+        <phase duration="40" state="GOOO"/>
         <phase duration="5"  state="yOOO"/>
         <phase duration="40" state="rOOO"/>
-        <phase duration="40" state="gOOO"/>
     </tlLogic>
 
     <junction id="J0" type="dead_end" x="-34.87" y="58.00" incLanes="" intLanes="" shape="-34.87,58.00 -34.87,48.40"/>
@@ -92,10 +92,10 @@
         <request index="2" response="000" foes="000" cont="0"/>
     </junction>
     <junction id="J2" type="traffic_light" x="190.88" y="58.00" incLanes="E4_0 E1_0 E1_1 E1_2" intLanes=":J2_0_0 :J2_1_0 :J2_1_1 :J2_1_2" shape="179.68,58.00 179.68,48.40 176.34,48.27 173.91,47.90 171.94,47.27 170.02,46.40 167.73,45.29 164.63,43.93 163.43,46.90 163.14,48.40 163.14,58.00">
-        <request index="0" response="0000" foes="1110" cont="0"/>
-        <request index="1" response="0001" foes="0001" cont="0"/>
-        <request index="2" response="0001" foes="0001" cont="0"/>
-        <request index="3" response="0001" foes="0001" cont="0"/>
+        <request index="0" response="1110" foes="1110" cont="0"/>
+        <request index="1" response="0000" foes="0001" cont="0"/>
+        <request index="2" response="0000" foes="0001" cont="0"/>
+        <request index="3" response="0000" foes="0001" cont="0"/>
     </junction>
     <junction id="J3" type="priority" x="288.48" y="58.00" incLanes="E2_0 E2_1 E2_2" intLanes=":J3_0_0 :J3_0_1 :J3_0_2" shape="288.48,58.00 288.48,48.40 288.48,58.00">
         <request index="0" response="000" foes="000" cont="0"/>
@@ -108,13 +108,13 @@
     <connection from="E0" to="E1" fromLane="0" toLane="0" via=":J1_0_0" dir="s" state="M"/>
     <connection from="E0" to="E1" fromLane="1" toLane="1" via=":J1_0_1" dir="s" state="M"/>
     <connection from="E0" to="E1" fromLane="2" toLane="2" via=":J1_0_2" dir="s" state="M"/>
-    <connection from="E1" to="E2" fromLane="0" toLane="0" via=":J2_1_0" tl="J2" linkIndex="1" dir="s" state="o"/>
-    <connection from="E1" to="E2" fromLane="1" toLane="1" via=":J2_1_1" tl="J2" linkIndex="2" dir="s" state="o"/>
-    <connection from="E1" to="E2" fromLane="2" toLane="2" via=":J2_1_2" tl="J2" linkIndex="3" dir="s" state="o"/>
+    <connection from="E1" to="E2" fromLane="0" toLane="0" via=":J2_1_0" tl="J2" linkIndex="1" dir="s" state="O"/>
+    <connection from="E1" to="E2" fromLane="1" toLane="1" via=":J2_1_1" tl="J2" linkIndex="2" dir="s" state="O"/>
+    <connection from="E1" to="E2" fromLane="2" toLane="2" via=":J2_1_2" tl="J2" linkIndex="3" dir="s" state="O"/>
     <connection from="E2" to="E3" fromLane="0" toLane="0" via=":J3_0_0" dir="s" state="M"/>
     <connection from="E2" to="E3" fromLane="1" toLane="1" via=":J3_0_1" dir="s" state="M"/>
     <connection from="E2" to="E3" fromLane="2" toLane="2" via=":J3_0_2" dir="s" state="M"/>
-    <connection from="E4" to="E2" fromLane="0" toLane="0" via=":J2_0_0" tl="J2" linkIndex="0" dir="s" state="O"/>
+    <connection from="E4" to="E2" fromLane="0" toLane="0" via=":J2_0_0" tl="J2" linkIndex="0" dir="s" state="o"/>
 
     <connection from=":J1_0" to="E1" fromLane="0" toLane="0" dir="s" state="M"/>
     <connection from=":J1_0" to="E1" fromLane="1" toLane="1" dir="s" state="M"/>
