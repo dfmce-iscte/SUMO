@@ -1,5 +1,4 @@
 import numpy as np
-import main
 
 gamma = 0.9
 epsilon = 0.9
@@ -27,9 +26,10 @@ def create_Q():
 
     with open("States.txt", "r") as f:
         for line in f:
-            line_states = line.split(",")
+            line_states = line.replace(" ","").split(",")
             state = (line_states[0], line_states[1], line_states[2].replace("\n", ""))
             Q[state] = np.zeros(nA)
+    # print_Q(Q)
     return Q
 
 
@@ -38,12 +38,6 @@ def epsilon_greedy(Q_state, current_epsilon):
         return np.argmax(Q_state)
     else:
         return np.random.choice(nA)
-
-
-# def get_next_state(state, action):
-#     # new_state = main.execute_new_traffic_light_cycle(state, action)
-#     print("Get next state")
-#     return state
 
 
 def get_reward(current_state, next_state):
@@ -67,7 +61,7 @@ def get_reward(current_state, next_state):
     elif diff_scaled == 3:
         reward = -25
     elif diff_scaled == 2:
-        reward = -10 # VEr melhor aqui
+        reward = -10  # VEr melhor aqui
     elif diff_scaled == 1:
         reward = 25
     else:
@@ -76,13 +70,14 @@ def get_reward(current_state, next_state):
     return reward
 
 
-def step(current_state, action):
+def step(current_state, action,simulation):
     """
         Aqui temos de executar o cycle_time_length do semafore (1min) e depois obter o state atual.
         Temos de criar uma função no python file onde a simulação é executada para executar o step e obter o state obtido.
     """
-    next_state = main.execute_new_traffic_light_cycle(action)
+    next_state = simulation.execute_new_traffic_light_cycle(action)
     reward = get_reward(current_state, next_state)
+    print(f"State: {current_state}, Next state: {next_state}, Reward: {reward}")
     return next_state, reward
 
 
@@ -93,18 +88,18 @@ def obtain_policy_from_Q(Q):
     return policy
 
 
-def q_learning(num_eps=num_episodes):
+def q_learning(simulation):
     # Here there isn't an exit state.
     current_epsilon = epsilon
-    reduction = current_epsilon / num_eps
+    reduction = current_epsilon / num_episodes
     Q = create_Q()
-    for _ in range(num_eps):
+    for _ in range(num_episodes):
         current_state = initial_state
         done = False
         time_step = 0
         while not done:
             action = epsilon_greedy(Q[current_state], current_epsilon)
-            next_state, reward = step(current_state, action)
+            next_state, reward = step(current_state, action, simulation)
             Q[current_state][action] += alpha * (reward + gamma * np.max(Q[next_state]) - Q[current_state][action])
             current_state = next_state
             time_step += 1
