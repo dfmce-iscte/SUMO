@@ -34,10 +34,16 @@ def create_Q():
 
 
 def epsilon_greedy(Q_state, current_epsilon):
-    if np.random.random() < 1 - current_epsilon:
-        return np.argmax(Q_state)
+    if np.random.random() < current_epsilon:
+        index = np.random.choice(np.where(Q_state == np.max(Q_state))[0])
+        # print(f"Q_state: {Q_state}, index: {index}")
+        return index
+        # return np.random.choice(np.where(Q_state == np.max(Q_state))[0])
     else:
-        return np.random.choice(nA)
+        index = np.random.choice(nA)
+        # print(f"Q_state: {Q_state}, index: {index}")
+        return index
+        # return np.random.choice(nA)
 
 
 def get_reward(current_state, next_state):
@@ -109,10 +115,10 @@ def q_learning(simulation):
 
     return obtain_policy_from_Q(Q)
 
-
-def main():
-    create_Q()
-
-
-if __name__ == "__main__":
-    main()
+#
+# def main():
+#     create_Q()
+#
+#
+# if __name__ == "__main__":
+#     main()
