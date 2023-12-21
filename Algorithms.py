@@ -4,7 +4,7 @@ gamma = 0.9
 epsilon = 0.9
 alpha = 0.5
 num_episodes = 5
-time_limit = 50
+time_limit = 60
 nA = 4  # number of choices!!!!!
 initial_state = ("L", "L", "L")
 states_values = {
@@ -36,7 +36,7 @@ def create_Q():
 def epsilon_greedy(Q_state, current_epsilon):
     if np.random.random() < current_epsilon:
         index = np.random.choice(np.where(Q_state == np.max(Q_state))[0])
-        print(f"Best choice: {Q_state}, index: {index}")
+        # print(f"Best choice: {Q_state}, index: {index}")
         return index
         # return np.random.choice(np.where(Q_state == np.max(Q_state))[0])
     else:
@@ -55,28 +55,24 @@ def get_reward(current_state, next_state):
     """
     diff can range from -9 (if all parts of the state improve from ‘High’ to ‘Low’) to 9 (if all parts worsen from ‘Low’ to ‘High’).
     """
-    if diff < -4: # High improvement
+    if diff < -4:  # High improvement
         reward = 50
-    elif diff < 0: # Improve
+    elif diff < 0:  # Improve
         reward = 25
-    elif diff == 0: # No change
+    elif diff == 0:  # No change
         reward = -10
     elif diff < 5:  # Worsen
         reward = -25
-    else:           # High worsen
+    else:  # High worsen
         reward = -50
 
     return reward
 
 
 def step(current_state, action, simulation):
-    """
-        Aqui temos de executar o cycle_time_length do semafore (1min) e depois obter o state atual.
-        Temos de criar uma função no python file onde a simulação é executada para executar o step e obter o state obtido.
-    """
     next_state = simulation.execute_new_traffic_light_cycle(action)
     reward = get_reward(current_state, next_state)
-   # print(f"State: {current_state}, Next state: {next_state}, Reward: {reward}")
+    # print(f"State: {current_state}, Next state: {next_state}, Reward: {reward}")
     return next_state, reward
 
 
@@ -85,6 +81,13 @@ def obtain_policy_from_Q(Q):
     for state, actions in Q.items():
         policy[state] = np.argmax(actions)
     return policy
+
+
+def update_probabilities(simulation, time_step):
+    if time_step == 30:
+        simulation.change_probabilities(0.9, 0.7)
+    elif time_step == 45:
+        simulation.change_probabilities(0.95, 0.9)
 
 
 def q_learning(simulation):
@@ -98,6 +101,7 @@ def q_learning(simulation):
         done = False
         time_step = 0
         while not done:
+            update_probabilities(simulation, time_step)
             action = epsilon_greedy(Q[current_state], current_epsilon)
             next_state, reward = step(current_state, action, simulation)
             Q[current_state][action] += alpha * (reward + gamma * np.max(Q[next_state]) - Q[current_state][action])
