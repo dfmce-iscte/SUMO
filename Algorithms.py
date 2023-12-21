@@ -3,8 +3,8 @@ import numpy as np
 gamma = 0.9
 epsilon = 0.9
 alpha = 0.5
-num_episodes = 1000
-time_limit = 100
+num_episodes = 5
+time_limit = 50
 nA = 4  # number of choices!!!!!
 initial_state = ("L", "L", "L")
 states_values = {
@@ -26,7 +26,7 @@ def create_Q():
 
     with open("States.txt", "r") as f:
         for line in f:
-            line_states = line.replace(" ","").split(",")
+            line_states = line.replace(" ", "").split(",")
             state = (line_states[0], line_states[1], line_states[2].replace("\n", ""))
             Q[state] = np.zeros(nA)
     # print_Q(Q)
@@ -36,7 +36,7 @@ def create_Q():
 def epsilon_greedy(Q_state, current_epsilon):
     if np.random.random() < current_epsilon:
         index = np.random.choice(np.where(Q_state == np.max(Q_state))[0])
-        # print(f"Q_state: {Q_state}, index: {index}")
+        print(f"Best choice: {Q_state}, index: {index}")
         return index
         # return np.random.choice(np.where(Q_state == np.max(Q_state))[0])
     else:
@@ -47,43 +47,36 @@ def epsilon_greedy(Q_state, current_epsilon):
 
 
 def get_reward(current_state, next_state):
-    diff = sum(states_values[current] - states_values[new] for current, new in zip(current_state, next_state))
+    if current_state[0] == "L" and current_state == next_state:
+        return 50
+    elif current_state[0] == "H" and current_state == next_state:
+        return -50
+    diff = sum(states_values[new] - states_values[current] for current, new in zip(current_state, next_state))
     """
     diff can range from -9 (if all parts of the state improve from ‘High’ to ‘Low’) to 9 (if all parts worsen from ‘Low’ to ‘High’).
-    By adding 9 to diff, we shift this range to 0 (best) to 18 (worst).
-    Dividing by 4.5 then scales this range to 0 (best) to 4 (worst).
-    
-    0 - High improve
-    1 - Improve
-    2 - No change
-    3 - Worsen
-    4 - High worsen
     """
-    # Normalize to 0-10 scale
-    diff_scaled = (diff + 9) / 3.6
-
-    if diff_scaled == 4:
-        reward = -50
-    elif diff_scaled == 3:
-        reward = -25
-    elif diff_scaled == 2:
-        reward = -10  # VEr melhor aqui
-    elif diff_scaled == 1:
-        reward = 25
-    else:
+    if diff < -4: # High improvement
         reward = 50
+    elif diff < 0: # Improve
+        reward = 25
+    elif diff == 0: # No change
+        reward = -10
+    elif diff < 5:  # Worsen
+        reward = -25
+    else:           # High worsen
+        reward = -50
 
     return reward
 
 
-def step(current_state, action,simulation):
+def step(current_state, action, simulation):
     """
         Aqui temos de executar o cycle_time_length do semafore (1min) e depois obter o state atual.
         Temos de criar uma função no python file onde a simulação é executada para executar o step e obter o state obtido.
     """
     next_state = simulation.execute_new_traffic_light_cycle(action)
     reward = get_reward(current_state, next_state)
-    print(f"State: {current_state}, Next state: {next_state}, Reward: {reward}")
+   # print(f"State: {current_state}, Next state: {next_state}, Reward: {reward}")
     return next_state, reward
 
 
@@ -99,7 +92,8 @@ def q_learning(simulation):
     current_epsilon = epsilon
     reduction = current_epsilon / num_episodes
     Q = create_Q()
-    for _ in range(num_episodes):
+    for n_episode in range(num_episodes):
+        print(f"# Episodes: {n_episode}")
         current_state = initial_state
         done = False
         time_step = 0
@@ -112,13 +106,6 @@ def q_learning(simulation):
             done = time_step == time_limit
         if current_epsilon > 0:
             current_epsilon -= reduction
+        simulation.remove_all_cars()
 
     return obtain_policy_from_Q(Q)
-
-#
-# def main():
-#     create_Q()
-#
-#
-# if __name__ == "__main__":
-#     main()

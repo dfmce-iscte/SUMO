@@ -30,24 +30,19 @@ class Simulation:
         sumoCmd = [sumoBinary, "-c", "final.sumocfg"]
 
         traci.start(sumoCmd)
-        step = 0
-        # before_junction = "E1"
-        # ramp = "E4"
-        # after_junction = "E2"
-        # Get the number of lanes for the specified edge
 
         num_lanes_before_junction = traci.edge.getLaneNumber(self.before_junction)
         num_lanes_ramp = traci.edge.getLaneNumber(self.ramp)
         num_lanes_after_junction = traci.edge.getLaneNumber(self.after_junction)
 
         self.area_of_before_junction = self.calculate_area(self.before_junction, num_lanes_before_junction)
-        print(f"Area of edge {self.before_junction}: {self.area_of_before_junction} meters")
+       # print(f"Area of edge {self.before_junction}: {self.area_of_before_junction} meters")
 
         self.area_of_after_junction = self.calculate_area(self.after_junction, num_lanes_after_junction)
-        print(f"Area of edge {self.after_junction}: {self.area_of_after_junction} meters")
+        #print(f"Area of edge {self.after_junction}: {self.area_of_after_junction} meters")
 
         self.area_of_ramp = self.calculate_area(self.ramp, num_lanes_ramp)
-        print(f"Area of edge {self.ramp}: {self.area_of_ramp} meters")
+        #print(f"Area of edge {self.ramp}: {self.area_of_ramp} meters")
 
         self.vehicles_areas = {
             "car": traci.vehicletype.getMinGap("car") * 3.2 + traci.vehicletype.getLength("car") * 3.2,
@@ -65,6 +60,11 @@ class Simulation:
         value = random.random()
         if value < percent: return 0
         return 1
+
+    def remove_all_cars(self):
+        vehicle_ids = traci.vehicle.getIDList()
+        for vehicle_id in vehicle_ids:
+            traci.vehicle.remove(vehicle_id)
 
     def calculate_average_vehicle_area(self):
         # Ensure probabilities and vehicle_sizes have the same length
@@ -84,7 +84,7 @@ class Simulation:
         n_vehicles_on_edge = traci.edge.getLastStepVehicleIDs(edge)
         max_cars = self.calculate_max_n_vehicles(edge_area)
         density = len(n_vehicles_on_edge) / max_cars
-        print(f"Edge {edge}, max_cars: {max_cars}, n_cars: {len(n_vehicles_on_edge)}, density: {density}")
+       # print(f"Edge {edge}, max_cars: {max_cars}, n_cars: {len(n_vehicles_on_edge)}, density: {density}")
         return density
 
     def calculate_density(self, edge, area):
@@ -94,22 +94,19 @@ class Simulation:
             # lane_id = traci.edge.getLaneID(edge, 0)
             # lane_width = traci.lane.getWidth(lane_id)
             vehicle_type = traci.vehicle.getTypeID(vehicle_id)
-            if vehicle_type == "car":
-                print(f"Car area: {traci.vehicle.getLength(vehicle_id) * 3.2}")
             sum_of_area_of_cars += (
                         (3.2 * traci.vehicle.getLength(vehicle_id)) + (traci.vehicletype.getMinGap(vehicle_type) * 3.2))
         density = sum_of_area_of_cars / area
-        print(f"DENSITY: {density}, Total area: {area}, sum: {sum_of_area_of_cars}")
+       # print(f"DENSITY: {density}, Total area: {area}, sum: {sum_of_area_of_cars}")
         return density
 
     def generate_random_vehicles(self):
         types = ["car", "bus", "truck", "motorcycle", "emergency"]
         probabilities = [0.49, 0.15, 0.13, 0.20, 0.03]
         generated_vehicles = []
-        # if self.maybe_create_vehicle(1.0) == 0:
-        #     generated_vehicles = random.choices(types, probabilities, k=random.randint(10, 11))
-        generated_vehicles = random.choices(types, probabilities, k=30)
-        generated_vehicles_ramp = random.choices(types, probabilities, k=self.maybe_create_vehicle(0.6))
+        if self.maybe_create_vehicle(0.6) == 1:
+            generated_vehicles = random.choices(types, probabilities, k=random.randint(4, 9))
+        generated_vehicles_ramp = random.choices(types, probabilities, k=self.maybe_create_vehicle(0.2))
 
         for vehicle_type in generated_vehicles:
             lane = random.choice([0, 1, 2])
@@ -164,7 +161,7 @@ class Simulation:
 
     def execute_new_traffic_light_cycle(self, action):
         cycle = self.actions_cycles[action]
-        print(f"GREEN: {cycle[0]}, YELLOW: {cycle[1]}, RED: {cycle[2]}")
+        #print(f"GREEN: {cycle[0]}, YELLOW: {cycle[1]}, RED: {cycle[2]}")
         self.get_new_phases(cycle)
 
         # Executar os 60seg
@@ -185,7 +182,9 @@ class Simulation:
 def main():
     sim = Simulation()
     sim.run_sumo()
-    alg.q_learning(sim)
+    policy = alg.q_learning(sim)
+    for key, value in policy.items():
+        print(f"{key}, action: {value}")
 
     traci.close()
 
