@@ -1,9 +1,9 @@
 import numpy as np
 
 gamma = 0.9
-epsilon = 0.9
+epsilon = 0.1
 alpha = 0.5
-num_episodes = 5
+num_episodes = 50
 time_limit = 60
 nA = 4  # number of choices!!!!!
 initial_state = ("L", "L", "L")
@@ -34,7 +34,7 @@ def create_Q():
 
 
 def epsilon_greedy(Q_state, current_epsilon):
-    if np.random.random() < current_epsilon:
+    if np.random.random() > current_epsilon:
         index = np.random.choice(np.where(Q_state == np.max(Q_state))[0])
         # print(f"Best choice: {Q_state}, index: {index}")
         return index
@@ -47,9 +47,11 @@ def epsilon_greedy(Q_state, current_epsilon):
 
 
 def get_reward(current_state, next_state):
-    if current_state[0] == "L" and current_state == next_state:
+    if current_state == ("L", "L", "L") and current_state == next_state:
+        print("No status change but it's still LOW")
         return 50
-    elif current_state[0] == "H" and current_state == next_state:
+    elif current_state == ("H", "H", "H") and current_state == next_state:
+        print("No status change but it's still HIGH")
         return -50
     diff = sum(states_values[new] - states_values[current] for current, new in zip(current_state, next_state))
     """
@@ -97,7 +99,8 @@ def q_learning(simulation):
     Q = create_Q()
     for n_episode in range(num_episodes):
         print(f"# Episodes: {n_episode}")
-        current_state = initial_state
+        current_state = simulation.get_densities()
+        print(f"Initial_state: {current_state}")
         done = False
         time_step = 0
         while not done:

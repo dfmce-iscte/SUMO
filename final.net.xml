@@ -76,7 +76,7 @@
         <lane id="E3_2" index="2" speed="28.00" length="1000.00" shape="288.48,56.40 403.95,56.40"/>
     </edge>
     <edge id="E4" from="J5" to="J2" priority="-1" length="500.00">
-        <lane id="E4_0" index="0" speed="28.00" length="500.00" shape="77.32,10.35 164.03,45.42"/>
+        <lane id="E4_0" index="0" speed="20.00" length="500.00" shape="77.32,10.35 164.03,45.42"/>
     </edge>
 
     <tlLogic id="J2" type="static" programID="0" offset="0">
