@@ -69,6 +69,24 @@ class Simulation:
         density = sum_of_area_of_cars / area
         return density
 
+    def generated_scenario3(self):
+
+        types = ["car", "bus", "truck", "motorcycle", "emergency"]
+        probabilities = [0.49, 0.15, 0.13, 0.20, 0.03]
+        generated_vehicles_highway = random.choices(types, probabilities, k=150)
+        generated_vehicles_ramp = random.choices(types, probabilities, k=10)
+        for vehicle_type in generated_vehicles_highway:
+            lane = random.choice([0, 1, 2])
+            depart_speed = random.randint(10, 27)
+            traci.vehicle.add("vehicle" + str(self.n_cars), typeID=vehicle_type, routeID="r_0", departLane=lane,
+                              departSpeed=depart_speed, departPos=random.randint(0, 1000))
+            self.n_cars += 1
+        for vehicle_type in generated_vehicles_ramp:
+            depart_speed_ramp = random.randint(10, 15)
+            traci.vehicle.add("vehicle" + str(self.n_cars), typeID=vehicle_type, routeID="r_1", departLane=0,
+                              departSpeed=depart_speed_ramp)
+            self.n_cars += 1
+
     def generate_random_vehicles(self):
         types = ["car", "bus", "truck", "motorcycle", "emergency"]
         probabilities = [0.49, 0.15, 0.13, 0.20, 0.03]
