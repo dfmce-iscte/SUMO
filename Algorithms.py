@@ -3,10 +3,10 @@ import numpy as np
 gamma = 0.9
 epsilon = 0.1
 alpha = 0.5
-num_episodes = 50
+num_episodes = 1000
 time_limit = 60
 nA = 4  # number of choices!!!!!
-initial_state = ("L", "L", "L")
+##initial_state = ("L", "L", "L")
 states_values = {
     "L": 0,
     "ML": 1,
@@ -101,10 +101,14 @@ def q_learning(simulation):
     for n_episode in range(num_episodes):
         print(f"# Episodes: {n_episode}")
         current_state = simulation.get_densities()
+
         print(f"Initial_state: {current_state}")
         done = False
         time_step = 0
         total_rew_of_episode = 0
+
+        #simulation.generated_scenario3()
+
         while not done:
             update_probabilities(simulation, time_step)
             action = epsilon_greedy(Q[current_state], current_epsilon)

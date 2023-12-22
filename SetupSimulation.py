@@ -30,7 +30,9 @@ class Simulation:
         print(f"Ramp probability: {self.ramp_probability}, Highway probability: {self.highway_probability}")
 
     def run_sumo(self):
-        sumoBinary = "C:\Program Files (x86)\Eclipse\Sumo\\bin\sumo-gui.exe"
+        # sumoBinary = "C:\Program Files (x86)\Eclipse\Sumo\\bin\sumo-gui.exe"
+        sumoBinary = "/usr/local/bin/sumo"
+
         sumoBinary = sumoBinary.replace("\\", "/")
         sumoCmd = [sumoBinary, "-c", "final.sumocfg"]
 
@@ -73,6 +75,7 @@ class Simulation:
         generated_vehicles = []
         if self.maybe_create_vehicle(self.highway_probability):
             generated_vehicles = random.choices(types, probabilities, k=random.randint(4, 9))
+            # generated_vehicles = random.choices(types, probabilities, k=random.randint(2, 5))
         generated_vehicles_ramp = random.choices(types, probabilities,
                                                  k=self.maybe_create_vehicle(self.ramp_probability))
 
@@ -157,6 +160,8 @@ def main():
     for key, value in policy.items():
         print(f"{key}, action: {value}")
     scenario = 1
+
+    #scenario = 3_1
     with open(f"Policies/q_learning_policy_scenario_{scenario}.txt", "w") as f:
         for key, value in policy.items():
             f.write(f"{key}, {sim.actions_cycles[value]}\n")
