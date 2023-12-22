@@ -97,22 +97,26 @@ def q_learning(simulation):
     current_epsilon = epsilon
     reduction = current_epsilon / num_episodes
     Q = create_Q()
+    all_avg_rewards = []
     for n_episode in range(num_episodes):
         print(f"# Episodes: {n_episode}")
         current_state = simulation.get_densities()
         print(f"Initial_state: {current_state}")
         done = False
         time_step = 0
+        total_rew_of_episode = 0
         while not done:
             update_probabilities(simulation, time_step)
             action = epsilon_greedy(Q[current_state], current_epsilon)
             next_state, reward = step(current_state, action, simulation)
             Q[current_state][action] += alpha * (reward + gamma * np.max(Q[next_state]) - Q[current_state][action])
             current_state = next_state
+            total_rew_of_episode += reward
             time_step += 1
             done = time_step == time_limit
+        all_avg_rewards.append(total_rew_of_episode / time_limit)
         if current_epsilon > 0:
             current_epsilon -= reduction
         simulation.remove_all_cars()
 
-    return obtain_policy_from_Q(Q)
+    return obtain_policy_from_Q(Q), list(range(num_episodes)), all_avg_rewards

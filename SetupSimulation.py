@@ -1,6 +1,7 @@
 import random
 import traci
 import Algorithms as alg
+import matplotlib.pyplot as plt
 
 
 class Simulation:
@@ -55,7 +56,6 @@ class Simulation:
         vehicle_ids = traci.vehicle.getIDList()
         for vehicle_id in vehicle_ids:
             traci.vehicle.remove(vehicle_id)
-
 
     def calculate_density(self, edge, area):
         sum_of_area_of_cars = 0.0
@@ -149,16 +149,24 @@ class Simulation:
 
         return self.get_densities()
 
+
 def main():
     sim = Simulation()
     sim.run_sumo()
-    policy = alg.q_learning(sim)
+    policy, episodes, avg_rew = alg.q_learning(sim)
     for key, value in policy.items():
         print(f"{key}, action: {value}")
-
-    with open("q_learning_policy.txt", "w") as f:
+    scenario = 1
+    with open(f"q_learning_policy_scenario_{scenario}.txt", "w") as f:
         for key, value in policy.items():
             f.write(f"{key}, {sim.actions_cycles[value]}\n")
+
+    fig = plt.figure(figsize=(15, 10))
+    ax1 = fig.add_subplot()
+    ax1.plot(episodes, avg_rew)
+    ax1.set_xlabel("Episodes")
+    ax1.set_ylabel("Average Reward")
+    fig.savefig(f'Average_Reward_per_episode-Q-learning_Scenario_{scenario}.png')
 
     traci.close()
 
