@@ -157,7 +157,7 @@ def main():
     for key, value in policy.items():
         print(f"{key}, action: {value}")
     scenario = 1
-    with open(f"q_learning_policy_scenario_{scenario}.txt", "w") as f:
+    with open(f"Policies/q_learning_policy_scenario_{scenario}.txt", "w") as f:
         for key, value in policy.items():
             f.write(f"{key}, {sim.actions_cycles[value]}\n")
 
@@ -166,7 +166,7 @@ def main():
     ax1.plot(episodes, avg_rew)
     ax1.set_xlabel("Episodes")
     ax1.set_ylabel("Average Reward")
-    fig.savefig(f'Average_Reward_per_episode-Q-learning_Scenario_{scenario}.png')
+    fig.savefig(f'Plots/Average_Reward_per_episode-Q-learning_Scenario_{scenario}.png')
 
     traci.close()
 
