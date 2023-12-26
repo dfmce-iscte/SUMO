@@ -30,7 +30,9 @@ class Simulation:
         print(f"Ramp probability: {self.ramp_probability}, Highway probability: {self.highway_probability}")
 
     def run_sumo(self):
-        sumoBinary = "C:\Program Files (x86)\Eclipse\Sumo\\bin\sumo-gui.exe"
+        # sumoBinary = "C:\Program Files (x86)\Eclipse\Sumo\\bin\sumo-gui.exe"
+        sumoBinary = "/usr/local/bin/sumo"
+
         sumoBinary = sumoBinary.replace("\\", "/")
         sumoCmd = [sumoBinary, "-c", "final.sumocfg"]
 
@@ -67,12 +69,31 @@ class Simulation:
         density = sum_of_area_of_cars / area
         return density
 
+    def generated_scenario3(self):
+
+        types = ["car", "bus", "truck", "motorcycle", "emergency"]
+        probabilities = [0.49, 0.15, 0.13, 0.20, 0.03]
+        generated_vehicles_highway = random.choices(types, probabilities, k=150)
+        generated_vehicles_ramp = random.choices(types, probabilities, k=10)
+        for vehicle_type in generated_vehicles_highway:
+            lane = random.choice([0, 1, 2])
+            depart_speed = random.randint(10, 27)
+            traci.vehicle.add("vehicle" + str(self.n_cars), typeID=vehicle_type, routeID="r_0", departLane=lane,
+                              departSpeed=depart_speed, departPos=random.randint(0, 1000))
+            self.n_cars += 1
+        for vehicle_type in generated_vehicles_ramp:
+            depart_speed_ramp = random.randint(10, 15)
+            traci.vehicle.add("vehicle" + str(self.n_cars), typeID=vehicle_type, routeID="r_1", departLane=0,
+                              departSpeed=depart_speed_ramp)
+            self.n_cars += 1
+
     def generate_random_vehicles(self):
         types = ["car", "bus", "truck", "motorcycle", "emergency"]
         probabilities = [0.49, 0.15, 0.13, 0.20, 0.03]
         generated_vehicles = []
         if self.maybe_create_vehicle(self.highway_probability):
             generated_vehicles = random.choices(types, probabilities, k=random.randint(4, 9))
+            # generated_vehicles = random.choices(types, probabilities, k=random.randint(2, 5))
         generated_vehicles_ramp = random.choices(types, probabilities,
                                                  k=self.maybe_create_vehicle(self.ramp_probability))
 
@@ -157,6 +178,8 @@ def main():
     for key, value in policy.items():
         print(f"{key}, action: {value}")
     scenario = 1
+
+    #scenario = 3_1
     with open(f"Policies/q_learning_policy_scenario_{scenario}.txt", "w") as f:
         for key, value in policy.items():
             f.write(f"{key}, {sim.actions_cycles[value]}\n")
