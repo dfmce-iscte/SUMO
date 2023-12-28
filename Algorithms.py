@@ -3,10 +3,10 @@ import numpy as np
 gamma = 0.9
 epsilon = 0.1
 alpha = 0.5
-num_episodes = 1000
+num_episodes = 1
 time_limit = 60
 nA = 4  # number of choices!!!!!
-##initial_state = ("L", "L", "L")
+# initial_state = ("L", "L", "L")
 states_values = {
     "L": 0,
     "ML": 1,
@@ -22,7 +22,7 @@ def print_Q(Q):
 
 def create_Q():
     Q = {}
-    print("Creating Q-table...")
+    # print("Creating Q-table...")
 
     with open("States.txt", "r") as f:
         for line in f:
@@ -102,12 +102,12 @@ def q_learning(simulation):
         print(f"# Episodes: {n_episode}")
         current_state = simulation.get_densities()
 
-        print(f"Initial_state: {current_state}")
+        # print(f"Initial_state: {current_state}")
         done = False
         time_step = 0
         total_rew_of_episode = 0
 
-        #simulation.generated_scenario3()
+        # simulation.generated_scenario3()
 
         while not done:
             update_probabilities(simulation, time_step)

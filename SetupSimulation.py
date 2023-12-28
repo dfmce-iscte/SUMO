@@ -1,4 +1,6 @@
 import random
+import subprocess
+
 import traci
 import Algorithms as alg
 import DeepQLearning as dql
@@ -24,6 +26,7 @@ class Simulation:
         self.current_sim_step = 0
         self.ramp_probability = 0.95
         self.highway_probability = 0.9
+        self.avg_speeds = []
 
     def change_probabilities(self, ramp_probability, highway_probability):
         self.ramp_probability = ramp_probability
@@ -31,8 +34,8 @@ class Simulation:
         print(f"Ramp probability: {self.ramp_probability}, Highway probability: {self.highway_probability}")
 
     def run_sumo(self):
-        # sumoBinary = "C:\Program Files (x86)\Eclipse\Sumo\\bin\sumo-gui.exe"
-        sumoBinary = "/usr/local/bin/sumo"
+        sumoBinary = "C:\Program Files (x86)\Eclipse\Sumo\\bin\sumo"
+        # sumoBinary = "/usr/local/bin/sumo"
 
         sumoBinary = sumoBinary.replace("\\", "/")
         sumoCmd = [sumoBinary, "-c", "final.sumocfg"]
@@ -167,22 +170,30 @@ class Simulation:
             self.current_sim_step += 1
             self.generate_random_vehicles()
         self.current_sim_step = 0
+
+        vehicle_ids = traci.vehicle.getIDList()
+        speeds = [traci.vehicle.getSpeed(vid) for vid in vehicle_ids]
+        average_speed = sum(speeds) / len(speeds) if speeds else 0
+        self.avg_speeds.append(average_speed)
+
         traci.simulationStep()
 
         return self.get_densities()
 
 
 def main():
+    scenario = 6
+
     sim = Simulation()
     sim.run_sumo()
-    #policy, episodes, avg_rew = alg.q_learning(sim)
-    policy, episodes, avg_rew = dql.deep_q_learning(sim)
+    policy, episodes, avg_rew = alg.q_learning(sim)
+    # policy, episodes, avg_rew = dql.deep_q_learning(sim)
     for key, value in policy.items():
         print(f"{key}, action: {value}")
-    scenario = 5.1
 
-    #scenario = 3_1
+    # scenario = 3_1
     with open(f"Policies/q_learning_policy_scenario_{scenario}.txt", "w") as f:
+        f.write(f"Average speed: {sum(sim.avg_speeds) / len(sim.avg_speeds)}\n")
         for key, value in policy.items():
             f.write(f"{key}, {sim.actions_cycles[value]}\n")
 
@@ -194,7 +205,6 @@ def main():
     fig.savefig(f'Plots/Average_Reward_per_episode-Q-learning_Scenario_{scenario}.png')
 
     traci.close()
-
 
 if __name__ == "__main__":
     main()
