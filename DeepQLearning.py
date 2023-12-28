@@ -29,7 +29,7 @@ class Agent:
 
     # The agent computes the action to perform given a state
     def compute_action(self, current_state):
-        if np.random.random() < self.exploration_proba:
+        if np.random.random() > self.exploration_proba:
             q_values = self.model.predict(current_state)[0]
             index = np.random.choice(np.where(q_values == np.max(q_values))[0])
             # print(f"Best choice: {Q_state}, index: {index}")
@@ -146,7 +146,7 @@ def deep_q_learning(simulation):
                 break
             current_state = next_state
         all_avg_rewards.append(total_rew_of_episode / max_iteration_ep)
-        # if the have at least batch_size experiences in the memory buffer
+        # if we have at least batch_size experiences in the memory buffer
         # than we tain our model
         if total_steps >= agent.batch_size:
             agent.train()
