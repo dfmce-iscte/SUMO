@@ -17,20 +17,8 @@ class Agent:
         # "batch_size": size of experiences we sample to train the DNN
         self.batch_size = 32
 
-        # stores only the 2000 last time steps
         self.memory_buffer = list()
         self.max_memory_buffer = 2000
-
-        # The first layer has the same size as a state size
-        # The last layer has the size of actions space
-
-        """
-        Função de Ativação: A função de ativação ReLU (Rectified Linear Unit) é comumente usada nas camadas ocultas de 
-        redes neurais profundas, incluindo aquelas usadas em Deep Q Learning13. A ReLU é popular porque é computacionalmente 
-        eficiente e ajuda a mitigar o problema do desaparecimento do gradiente3. Para a camada de saída, a função de ativação 
-        depende do tipo de problema de previsão. Em muitos casos de aprendizado por reforço, incluindo Deep Q Learning, 
-        uma função de ativação linear é usada na camada de saída.
-        """
 
         self.model = Sequential([
             Dense(units=24, input_dim=agent_state_size, activation='relu'),
@@ -41,10 +29,6 @@ class Agent:
 
     # The agent computes the action to perform given a state
     def compute_action(self, current_state):
-        # if np.random.uniform(0, 1) < self.exploration_proba:
-        #     return np.random.choice(range(self.n_actions))
-        # q_values = self.model.predict(current_state)[0]
-        # return np.argmax(q_values)
         if np.random.random() < self.exploration_proba:
             q_values = self.model.predict(current_state)[0]
             index = np.random.choice(np.where(q_values == np.max(q_values))[0])
@@ -78,24 +62,18 @@ class Agent:
 
         # We iterate over the selected experiences
         for experience in batch_sample:
-            # We compute the Q-values of S_t
             q_current_state = self.model.predict(np.array([experience["current_state"]]))
-            # We compute the Q-target using Bellman optimality equation
             q_target = experience["reward"]
             if not experience["done"]:
 
                 q_target = q_target + self.gamma * np.max(self.model.predict([experience["next_state"]])[0])
             q_current_state[0][experience["action"]] = q_target
-            # train the model
             self.model.fit(np.array([experience["current_state"]]), q_current_state, verbose=0)
 
 
-# We get the shape of a state and the actions space size
 state_size = 3
 action_size = 4
-# Number of episodes to run
 n_episodes = 100
-# Max iterations per epiode
 max_iteration_ep = 60
 agent = Agent(state_size, action_size)
 total_steps = 0
@@ -142,9 +120,12 @@ def step(current_state, action, simulation):
 def deep_q_learning(simulation):
     global total_steps
 
+    all_avg_rewards = []
+
     for n_episode in range(n_episodes):
         print(f"# Episodes: {n_episode}")
         current_state = simulation.get_densities()
+        total_rew_of_episode = 0
 
         for n_step in range(max_iteration_ep):
             total_steps = total_steps + 1
@@ -153,9 +134,9 @@ def deep_q_learning(simulation):
             next_state, reward = step(current_state, action, simulation)
             next_state_np = np.array([next_state])
 
+            total_rew_of_episode += reward
             done = n_step == max_iteration_ep - 1
 
-            # We sotre each experience in the memory buffer
             agent.store_episode(current_state, action, reward, next_state_np, done)
 
             # if the n_episode is ended, we leave the loop after
@@ -164,7 +145,7 @@ def deep_q_learning(simulation):
                 agent.update_exploration_probability()
                 break
             current_state = next_state
-
+        all_avg_rewards.append(total_rew_of_episode / max_iteration_ep)
         # if the have at least batch_size experiences in the memory buffer
         # than we tain our model
         if total_steps >= agent.batch_size:
