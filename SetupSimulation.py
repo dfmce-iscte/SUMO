@@ -1,6 +1,7 @@
 import random
 import traci
 import Algorithms as alg
+import DeepQLearning as dql
 import matplotlib.pyplot as plt
 
 
@@ -174,10 +175,11 @@ class Simulation:
 def main():
     sim = Simulation()
     sim.run_sumo()
-    policy, episodes, avg_rew = alg.q_learning(sim)
+    #policy, episodes, avg_rew = alg.q_learning(sim)
+    policy, episodes, avg_rew = dql.deep_q_learning(sim)
     for key, value in policy.items():
         print(f"{key}, action: {value}")
-    scenario = 1
+    scenario = 5.1
 
     #scenario = 3_1
     with open(f"Policies/q_learning_policy_scenario_{scenario}.txt", "w") as f:

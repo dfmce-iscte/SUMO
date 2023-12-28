@@ -13,7 +13,7 @@ class Agent:
         self.gamma = 0.99
         self.exploration_proba = 1.0
         # "exploration_proba_decay": decay of the exploration probability
-        self.exploration_proba_decay = 0.005
+        self.exploration_proba_decay = 0.05
         # "batch_size": size of experiences we sample to train the DNN
         self.batch_size = 32
 
@@ -79,18 +79,19 @@ class Agent:
         # We iterate over the selected experiences
         for experience in batch_sample:
             # We compute the Q-values of S_t
-            q_current_state = self.model.predict(experience["current_state"])
+            q_current_state = self.model.predict(np.array([experience["current_state"]]))
             # We compute the Q-target using Bellman optimality equation
             q_target = experience["reward"]
             if not experience["done"]:
-                q_target = q_target + self.gamma * np.max(self.model.predict(experience["next_state"])[0])
+
+                q_target = q_target + self.gamma * np.max(self.model.predict([experience["next_state"]])[0])
             q_current_state[0][experience["action"]] = q_target
             # train the model
-            self.model.fit(experience["current_state"], q_current_state, verbose=0)
+            self.model.fit(np.array([experience["current_state"]]), q_current_state, verbose=0)
 
 
 # We get the shape of a state and the actions space size
-state_size = 64
+state_size = 3
 action_size = 4
 # Number of episodes to run
 n_episodes = 100
@@ -170,3 +171,15 @@ def deep_q_learning(simulation):
             agent.train()
 
         simulation.remove_all_cars()
+
+    policy = {}
+    with open("States.txt", "r") as f:
+        for line in f:
+            line_states = line.replace(" ", "").split(",")
+            state = (line_states[0], line_states[1], line_states[2].replace("\n", ""))
+            state_int = (states_values[state[0]], states_values[state[1]], states_values[state[2]])
+            q_values = agent.model.predict(np.array([state_int]))[0]
+            index = np.random.choice(np.where(q_values == np.max(q_values))[0])
+            policy[state] = index
+
+    return policy, list(range(n_episodes)), all_avg_rewards
