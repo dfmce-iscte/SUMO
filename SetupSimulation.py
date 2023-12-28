@@ -160,9 +160,9 @@ class Simulation:
         return r, before, after
 
     def execute_new_traffic_light_cycle(self, action):
-        cycle = self.actions_cycles[action]
-        # print(f"GREEN: {cycle[0]}, YELLOW: {cycle[1]}, RED: {cycle[2]}")
-        self.get_new_phases(cycle)
+        # cycle = self.actions_cycles[action]
+        # # print(f"GREEN: {cycle[0]}, YELLOW: {cycle[1]}, RED: {cycle[2]}")
+        # self.get_new_phases(cycle)
 
         # Execute the traffic light cycle time length (60sec)
         while self.current_sim_step != 60:
@@ -182,12 +182,12 @@ class Simulation:
 
 
 def main():
-    scenario = 6
+    scenario = "6withoutTrafficLight"
 
     sim = Simulation()
     sim.run_sumo()
-    policy, episodes, avg_rew = alg.q_learning(sim)
-    # policy, episodes, avg_rew = dql.deep_q_learning(sim)
+    #policy, episodes, avg_rew = alg.q_learning(sim)
+    policy, episodes, avg_rew = dql.deep_q_learning(sim)
     for key, value in policy.items():
         print(f"{key}, action: {value}")
 

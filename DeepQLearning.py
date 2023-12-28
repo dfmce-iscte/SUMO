@@ -30,7 +30,7 @@ class Agent:
     # The agent computes the action to perform given a state
     def compute_action(self, current_state):
         if np.random.random() > self.exploration_proba:
-            q_values = self.model.predict(current_state)[0]
+            q_values = self.model.predict([current_state])[0]
             index = np.random.choice(np.where(q_values == np.max(q_values))[0])
             # print(f"Best choice: {Q_state}, index: {index}")
             return index
@@ -65,7 +65,6 @@ class Agent:
             q_current_state = self.model.predict(np.array([experience["current_state"]]))
             q_target = experience["reward"]
             if not experience["done"]:
-
                 q_target = q_target + self.gamma * np.max(self.model.predict([experience["next_state"]])[0])
             q_current_state[0][experience["action"]] = q_target
             self.model.fit(np.array([experience["current_state"]]), q_current_state, verbose=0)
@@ -86,13 +85,13 @@ states_values = {
 
 
 def get_reward(current_state, next_state):
-    if current_state == ("L", "L", "L") and current_state == next_state:
+    if current_state == (0, 0, 0) and ('L', 'L', 'L') == next_state:
         print("No status change but it's still LOW")
         return 50
-    elif current_state == ("H", "H", "H") and current_state == next_state:
+    elif current_state == (3, 3, 3) and ('H', 'H', 'H') == next_state:
         print("No status change but it's still HIGH")
         return -50
-    diff = sum(states_values[new] - states_values[current] for current, new in zip(current_state, next_state))
+    diff = sum(states_values[new] - current for current, new in zip(current_state, next_state))
     """
     diff can range from -9 (if all parts of the state improve from ‘High’ to ‘Low’) to 9 (if all parts worsen from ‘Low’ to ‘High’).
     """
@@ -125,6 +124,8 @@ def deep_q_learning(simulation):
     for n_episode in range(n_episodes):
         print(f"# Episodes: {n_episode}")
         current_state = simulation.get_densities()
+        current_state = (states_values[current_state[0]], states_values[current_state[1]],
+                         states_values[current_state[2]])
         total_rew_of_episode = 0
 
         for n_step in range(max_iteration_ep):
@@ -132,6 +133,8 @@ def deep_q_learning(simulation):
 
             action = agent.compute_action(np.array([current_state]))
             next_state, reward = step(current_state, action, simulation)
+            next_state = (states_values[next_state[0]], states_values[next_state[1]],
+                          states_values[next_state[2]])
             next_state_np = np.array([next_state])
 
             total_rew_of_episode += reward
